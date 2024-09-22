@@ -265,32 +265,38 @@
          *
          * Conversion steps:
          * 1. The input value is first converted to the base unit using the source unit's scale and bias.
-         * 2. The base unit value is then converted to the desired unit by applying the desired unit's scale and bias.
+         * 2. If a minor unit is present (e.g., didots in "1 cicero 4 didots"), it is also converted to the base unit.
+         * 3. The base unit value is then converted to the desired unit by applying the desired unit's scale and bias.
          *
          * Formula:
          * - To Base Unit: value_in_base = (input_value * source_scale) + source_bias
          * - To Desired Unit: converted_value = (value_in_base - desired_bias) / desired_scale
          *
-         * @param {string} inputValue - The input value with its unit (e.g., '10cm').
+         * @param {string} inputValue - The input value with its unit (e.g., '10cm' or '1c4').
          * @param {string} desiredUnit - The unit to convert to (e.g., 'm').
          * @param {string} tableName - The name of the conversion table to use.
          * @returns {[string|null, Object|null]} - Tuple: error or null, and the result with converted value and unit.
          */
         convert(inputValue, desiredUnit, tableName) {
-            // Parse the input value
+            // Parse the input value to handle both major and minor units
             const [parseError, parsed] = this.parse(inputValue, tableName);
             if (parseError) {
-                return [parseError, null];
+                return [parseError, null]; // If parsing fails, return the error
             }
 
             // Find the desired unit data
             const [findError, desiredUnitData] = this.find(desiredUnit, tableName);
             if (findError) {
-                return [findError, null];
+                return [findError, null]; // Return the specific error about the missing unit
             }
 
-            // Convert the input to the base unit
-            const valueInBase = (parsed.main.value * parsed.main.scale) + parsed.main.bias;
+            // Convert the main unit to the base unit
+            let valueInBase = (parsed.main.value * parsed.main.scale) + parsed.main.bias;
+
+            // If a minor unit exists (e.g., didots for ciceros), convert it to the base unit and add to the total
+            if (parsed.sub) {
+                valueInBase += (parsed.sub.value * parsed.sub.scale) + parsed.sub.bias;
+            }
 
             // Convert from the base unit to the desired unit
             const convertedValue = (valueInBase - desiredUnitData.bias) / desiredUnitData.scale;

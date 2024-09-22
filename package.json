@@ -1,0 +1,39 @@
+{
+  "name": "@mm-press/conversion-table-manager",
+  "version": "1.0.0",
+  "description": "A utility class for managing and converting various unit tables",
+  "main": "conversion-table-manager.js",
+  "keywords": [
+    "conversion",
+    "conversion-table",
+    "unit",
+    "measurement",
+    "unit-converter",
+    "custom-units",
+    "unit-mapping"
+  ],
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
+    "testMatch": [
+      "**/test/**/*.test.js"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smuchow1962/conversion-table-manager.git"
+  },
+  "author": "Steven Muchow",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.25.6",
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.4",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0"
+  }
+}

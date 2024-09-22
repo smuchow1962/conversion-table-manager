@@ -1,0 +1,8 @@
+# Ignore node_modules and unnecessary files
+# ------
+node_modules/
+test/
+*.log
+*.md
+coverage/
+.babelrc

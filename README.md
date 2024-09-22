@@ -458,3 +458,168 @@ if (!error) {
 2. **Table Lookup**: It looks up both the input unit and the desired unit in the specified conversion table.
 3. **Conversion Formula**: It applies the conversion formula using the scales and biases of both units.
 4. **Return**: The function returns the result with the converted value and the desired unit.
+
+
+# Input Table Data Model
+
+The data model for an input table in the `ConversionTable` class is a structured
+object where each key represents a unit (like `'m'` for meters or `'ft'` for feet),
+and each value defines various properties of that unit, including its relationship
+to the base unit, potential aliases, and minor units (sub-units).
+
+The model can be constructed as a **sparse** model, meaning that missing properties
+have defaults. Additionally, precision is considered based on the number of decimal
+digits present in the unit's scaling factor.
+
+## Table of Properties
+
+| Property   | Type              | Description                                                                                     | Default Value |
+|------------|-------------------|-------------------------------------------------------------------------------------------------|---------------|
+| `base`     | `boolean`         | **Optional.** If `true`, this unit is the base unit of the table. Only one unit should have `base: true`. | `false`       |
+| `scale`    | `number`          | **Optional.** The scaling factor that defines how many of this unit correspond to 1 base unit.   | `1`           |
+| `bias`     | `number`          | **Optional.** An offset added after scaling. Useful for temperature conversions like Celsius to Fahrenheit. | `0`           |
+| `term`     | `string`          | **Required.** The singular/plural names for the unit. Can take special formats:                  | `null`        |
+|            |                   | - `string(string2)`: Auto-parsed as `[string, string+string2]` (e.g., `"Meter(s)"` → `['Meter', 'Meters']`). |               |
+|            |                   | - `string/string2`: Auto-parsed as `[string, string2]` (e.g., `"Foot/Feet"` → `['Foot', 'Feet']`). |               |
+|            |                   | - `string`: Defaults to `[string, string]` (e.g., `"Celsius"` → `['Celsius', 'Celsius']`).        |               |
+| `alias`    | `string`          | **Optional.** If the unit is an alias, it points to another unit (e.g., `"i": { alias: "in" }`). | `null`        |
+| `minor`    | `string`          | **Optional.** Specifies a minor (or sub-) unit associated with this unit (e.g., Picas have Points as a minor unit). | `null`        |
+
+### Precision
+
+The `precision` for a table is calculated by finding the maximum number of digits after
+the decimal point in all `scale` values. Precision has a minimum value of **6** and a
+maximum value of **15**. This ensures precision is always within a reasonable range,
+even for irrational numbers like Pi or values with repeating decimals. If a conversion
+involves irrational numbers (like Pi), the precision is rounded to **15 digits**.
+Precision is passed to the `ConversionTable` constructor and is used internally to
+ensure accurate conversions.
+
+## Example Input Tables
+
+Below are examples of tables showing each of the properties mentioned above:
+
+```javascript
+// This table has a precision value of 15 due to the scale of 5/9
+const tempTable = {
+  'C': { base: true, term: 'Celsius' },
+  'F': { scale: 5 / 9, bias: 32, term: 'Fahrenheit' },
+  'K': { bias: 273.15, term: 'Kelvin' }
+};
+
+// This table has a precision value of 12, based on several scale values
+const typographyTable = {
+  'c': { scale: 12.789065750000, minor: 'd', term: 'Cicero(s)' }, // Ciceros with Didots as the minor unit
+  'mm': { scale: 2.834645669291, term: 'Millimeter(s)' }, // Millimeters
+  'cm': { scale: 28.346456692914, term: 'Centimeter(s)' }, // Centimeters
+  'd': { scale: 1.065543307019, term: 'Didot(s)' }, // Didots
+  'i': { alias: 'in' }, // Alias for inches
+  'in': { scale: 72.0, term: 'Inch(es)' }, // Inches
+  'p': { scale: 12.0, minor: 'pt', term: 'Pica(s)' }, // Picas with Points as the minor unit
+  'pt': { base: true, term: 'Point(s)' }, // Points as the base unit
+};
+
+const distanceTable = {
+    'm': { base: true, term: 'Meter(s)' }, // Meters as the base unit
+    'cm': { scale: 0.01, term: 'Centimeter(s)' }, // Centimeters
+    'mm': { scale: 0.001, term: 'Millimeter(s)' }, // Millimeters
+    'km': { scale: 1000, term: 'Kilometer(s)' }, // Kilometers
+    'in': { scale: 0.0254, term: 'Inch(es)' }, // Inches
+    'ft': { scale: 0.3048, term: 'Foot/Feet' }, // Feet
+    'yd': { scale: 0.9144, term: 'Yard(s)' }, // Yards
+    'mi': { scale: 1609.34, term: 'Mile(s)' }, // Miles
+    'nmi': { scale: 1852, term: 'Nautical Mile(s)' }, // Nautical Miles
+    'fathom': { scale: 1.8288, term: 'Fathom(s)' }, // Fathoms
+    'cable': { scale: 185.2, term: 'Cable(s)' }, // Cables (Nautical)
+    'league': { scale: 4828.03, term: 'League(s)' }, // Leagues (Nautical)
+    'cubit': { scale: 0.4572, term: 'Cubit(s)' }, // Cubits (Ancient)
+};
+```
+
+## ConversionTable Properties
+
+The `ConversionTable` constructor populates the following properties when an
+instance is created:
+
+| Property      | Type     | Description                                                                                      |
+|---------------|----------|--------------------------------------------------------------------------------------------------|
+| `table`       | `Object` | The normalized table of units. Contains all the units with their corresponding scales, terms, etc.|
+| `base`        | `string` | The base unit of the table. Only one unit should have `base: true`.                               |
+| `regexString` | `string` | A regex string used to match unit values and extract the major and optional minor units.           |
+| `tableName`   | `string` | **Optional.** The name of the conversion table.                                                   |
+| `precision`   | `number` | The maximum precision (digits after the decimal point) found in the `scale` values of the table.  |
+
+### Example `ConversionTable` Constructor:
+
+```javascript
+const distanceTable = {
+  'm': { base: true, term: 'Meter(s)' },
+  'ft': { scale: 0.3048, term: 'Foot/Feet' },  // 4 decimal places
+  'in': { scale: 0.0254, term: 'Inch(es)' },   // 4 decimal places
+  'nmi': { scale: 1852, term: 'Nautical Mile(s)' }, // No decimal places
+};
+
+const [error, distanceConversionTable] = ConversionTable.factory(distanceTable, 'distance');
+console.log(distanceConversionTable.precision);  // Output: 6 (minimum precision of 6)
+```
+
+### Precision Property:
+
+- Precision is calculated based on the number of digits after the decimal point in
+  the `scale` values of the units.
+- The minimum precision is **6**, even if the largest number of decimal places in
+  the table is smaller than that.
+- Precision is useful for ensuring that conversion calculations maintain the
+  necessary level of accuracy.
+- 15 digits is about the safest size when describing repeating decimal digits or
+  irrational numbers.
+
+## Explanation of Properties
+
+### `base`
+Indicates the unit that serves as the reference point for all other units in the
+table. In the `distanceTable`, `m` (Meters) is the base unit. Only one unit should
+have `base: true`.
+
+### `scale`
+Defines how many of this unit make up 1 of the base unit. For example, `1000`
+kilometers equals 1 meter (`km` has a `scale` of 1000). The base unit (`m` in this
+case) has no `scale` defined, as it's implied to be `1`.
+
+### `bias`
+This is used for conversions where an offset needs to be applied in addition to
+scaling. An example is temperature conversion, but it’s not commonly used in distance
+tables.
+
+### `term`
+The human-readable name of the unit, which can handle singular/plural/irregular
+forms. Examples:
+- **`Meter(s)`** → `['Meter', 'Meters']`.
+- **`Foot/Feet`** → `['Foot', 'Feet']`.
+- **`Fahrenheit`** → `['Fahrenheit', 'Fahrenheit']`
+- **`Sheep`** → `['Sheep', 'Sheep']`
+
+### `alias`
+Defines an alternative name for the unit, pointing to another unit's key. For
+example, `i` could alias to `in` (inches). This allows the same unit to be referenced
+by multiple names.
+
+### `minor`
+Specifies a sub-unit related to this unit, commonly seen in measurements like Picas,
+which use Points as the minor unit. Example: In typography, `p` (Picas) has a `minor`
+unit `pt` (Points).
+
+## Summary
+
+- **Base Unit**: Only one unit can be the base, and this unit will act as the
+  reference for all other units in the table.
+- **Scale**: The scale is the ratio of the unit to the base unit. A unit without a
+  scale is assumed to be the base unit.
+- **Term**: Handles both singular and plural forms, either by auto-detecting patterns
+  or through explicit input.
+- **Alias**: Allows multiple names to refer to the same unit, helping in cases where
+  alternate terminologies are used.
+- **Precision**: The largest number of decimal places in the `scale` values of the
+  table, with a minimum precision of 6.
+- **Minor Unit**: A sub-unit that is a fraction of the main unit, useful for
+  hierarchical measurement systems (e.g., feet and inches, picas and points).

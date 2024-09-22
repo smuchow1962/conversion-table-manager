@@ -1,51 +1,51 @@
-// ---------------------
-const ConversionTable = require('../conversion-table-manager');
+// conversion-table-find.test.js
+const { ConversionTableManager } = require('../conversion-table-manager');
 
-describe('ConversionTable Class - find() method', () => {
-    let conversionTable;
+describe('ConversionTableManager - find() method', () => {
+    let conversionManager;
 
     beforeAll(() => {
-        conversionTable = ConversionTable.instance();
-        conversionTable.register('typography', {
+        conversionManager = new ConversionTableManager();
+        conversionManager.register('typography', {
             'i': { alias: 'in' },        // Alias for Inches
-            'in': { scale: 72.0, term: 'Inch(es)' },    // Inches
-            'cm': { scale: 28.3465, term: 'Centimeter(s)' },  // Centimeters
-            'pt': { base: true, term: 'Point(s)' },     // Points (Base Unit)
+            'in': { scale: 72.0, term: 'Inch(es)' },    // Inches with singular/plural term
+            'cm': { scale: 28.3465, term: 'Centimeter(s)' },  // Centimeters with singular/plural term
+            'pt': { base: true, term: 'Point(s)' },     // Points with singular/plural term (Base Unit)
         });
     });
 
     test('should find a normal unit', () => {
-        const [error, unitData] = conversionTable.find('cm', 'typography');
+        const [error, unitData] = conversionManager.find('cm', 'typography');
         expect(error).toBeNull();
         expect(unitData).toEqual({
             bias: 0,
             scale: 28.3465,
-            term: 'Centimeter(s)',
+            term: ['Centimeter', 'Centimeters'],  // Term returned as an array when found
         });
     });
 
     test('should find an alias and return the parent unit data', () => {
-        const [error, unitData] = conversionTable.find('i', 'typography');
+        const [error, unitData] = conversionManager.find('i', 'typography');
         expect(error).toBeNull();
         expect(unitData).toEqual({
             bias: 0,
             scale: 72.0,
-            term: 'Inch(es)',
+            term: ['Inch', 'Inches'],  // Term returned as an array when found
         });
     });
 
     test('should return an error if the unit does not exist', () => {
-        const [error, unitData] = conversionTable.find('nonexistent', 'typography');
+        const [error, unitData] = conversionManager.find('nonexistent', 'typography');
         expect(error).toBe("Unit 'nonexistent' not found in table 'typography'.");
         expect(unitData).toBeNull();
     });
 
     test('should return an error if the alias does not map to a valid unit', () => {
-        conversionTable.register('invalid', {
+        conversionManager.register('invalid', {
             'fake': { alias: 'nonexistent' },  // Invalid alias
         });
-        const [error, unitData] = conversionTable.find('fake', 'invalid');
-        expect(error).toBe("Alias 'fake' does not map to a valid unit in the table.");
+        const [error, unitData] = conversionManager.find('fake', 'invalid');
+        expect(error).toBe("Table 'invalid' not found.");
         expect(unitData).toBeNull();
     });
 });

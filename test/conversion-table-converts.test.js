@@ -1,4 +1,4 @@
-const ConversionTable = require('../conversion-table-manager');
+const { ConversionTableManager, ConversionTableOperations } = require('../conversion-table-manager');
 
 // Test data: Valid cases for the convert() method
 const validCases = [
@@ -12,26 +12,25 @@ const validCases = [
     { input: '0.25in', table: 'typography', targetUnit: 'mm', expected: { unit: 'mm', value: 6.35 } },
     { input: '1c', table: 'typography', targetUnit: 'pt', expected: { unit: 'pt', value: 12.78906575 } },
     { input: '12cm', table: 'typography', targetUnit: 'pt', expected: { unit: 'pt', value: 340.15748031493 } },
+    { input: '10', table: 'typography', targetUnit: 'pt', expected: { unit: 'pt', value: 10 } },
 ];
 
 // Test data: Invalid cases for the convert() method
 const invalidCases = [
     { input: '20km', table: 'typography', targetUnit: 'pt', expectedError: 'Invalid input format or no match found.' },
-    // { input: '20km', table: 'typography', targetUnit: 'pt', expectedError: 'Unit \'km\' not found in table \'typography\'.' },
-    { input: '10', table: 'typography', targetUnit: 'pt', expectedError: 'Invalid input format or no match found.' },
     { input: 'hello', table: 'typography', targetUnit: 'pt', expectedError: 'Invalid input format or no match found.' },
     { input: 'cm10', table: 'typography', targetUnit: 'pt', expectedError: 'Invalid input format or no match found.' },
     { input: '5x', table: 'typography', targetUnit: 'pt', expectedError: 'Invalid input format or no match found.' },
     { input: '1cmm', table: 'typography', targetUnit: 'pt', expectedError: 'Invalid input format or no match found.' },
 ];
 
-describe('ConversionTable Class - convert() method (Valid Cases)', () => {
-    let conversionTable;
+describe('ConversionTableOperations - convert() method (Valid Cases)', () => {
+    let conversionManager;
 
     beforeAll(() => {
-        conversionTable = ConversionTable.instance();
-        conversionTable.unregister('typography');
-        conversionTable.register('typography', {
+        conversionManager = new ConversionTableManager();
+        conversionManager.unregister('typography');
+        conversionManager.register('typography', {
             'c': { scale: 12.789065750000, minor: 'd', term: 'Cicero(s)' }, // Ciceros with Didots as the minor unit
             'mm': { scale: 2.834645669291, term: 'Millimeter(s)' },        // Millimeters
             'cm': { scale: 28.346456692914, term: 'Centimeter(s)' },        // Centimeters
@@ -46,7 +45,10 @@ describe('ConversionTable Class - convert() method (Valid Cases)', () => {
     test.each(validCases)(
         'should convert %p to target unit %p correctly',
         ({ input, table, targetUnit, expected }) => {
-            const [error, result] = conversionTable.convert(input, targetUnit, table);
+            const [tableError, conversionTable] = conversionManager.get(table);
+            expect(tableError).toBeNull();
+
+            const [error, result] = ConversionTableOperations.convert(input, targetUnit, conversionTable);
 
             // Log the conversion, result, and expected result
             console.log(`Input: ${input} -> Target Unit: ${targetUnit}  result: ${result.value}, expected: ${expected.value}`);
@@ -58,13 +60,13 @@ describe('ConversionTable Class - convert() method (Valid Cases)', () => {
     );
 });
 
-describe('ConversionTable Class - convert() method (Invalid Cases)', () => {
-    let conversionTable;
+describe('ConversionTableOperations - convert() method (Invalid Cases)', () => {
+    let conversionManager;
 
     beforeAll(() => {
-        conversionTable = ConversionTable.instance();
-        conversionTable.unregister('typography');
-        conversionTable.register('typography', {
+        conversionManager = new ConversionTableManager();
+        conversionManager.unregister('typography');
+        conversionManager.register('typography', {
             'c': { scale: 12.789065750000, minor: 'd', term: 'Cicero(s)' }, // Ciceros with Didots as the minor unit
             'mm': { scale: 2.834645669291, term: 'Millimeter(s)' },        // Millimeters
             'cm': { scale: 28.346456692914, term: 'Centimeter(s)' },        // Centimeters
@@ -79,7 +81,10 @@ describe('ConversionTable Class - convert() method (Invalid Cases)', () => {
     test.each(invalidCases)(
         'should return error for %p',
         ({ input, table, targetUnit, expectedError }) => {
-            const [error] = conversionTable.convert(input, targetUnit, table);
+            const [tableError, conversionTable] = conversionManager.get(table);
+            expect(tableError).toBeNull();
+
+            const [error] = ConversionTableOperations.convert(input, targetUnit, conversionTable);
 
             // Log the invalid input and expected error
             console.log(`Input: ${input} -> Target Unit: ${targetUnit}`);

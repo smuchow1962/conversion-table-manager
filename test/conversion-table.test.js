@@ -69,15 +69,15 @@ describe('ConversionTable Class', () => {
     });
 
     test('should normalize a table', () => {
-        const normalizedTable = conversionTable.normalizeTable({
+        const [ result, normalizedTable] = conversionTable.normalizeTable({
             'C': { base: true, term: 'Celsius' },
             'F': { scale: 5 / 9, bias: 32, term: 'Fahrenheit' }
         });
 
-        expect(normalizedTable.C.scale).toBe(1);
-        expect(normalizedTable.C.bias).toBe(0);
-        expect(normalizedTable.F.scale).toBe(5 / 9);
-        expect(normalizedTable.F.bias).toBe(32);
+        expect(normalizedTable.table.C.scale).toBe(1);
+        expect(normalizedTable.table.C.bias).toBe(0);
+        expect(normalizedTable.table.F.scale).toBe(5 / 9);
+        expect(normalizedTable.table.F.bias).toBe(32);
     });
 
     test('should build a valid regex for registered table', () => {

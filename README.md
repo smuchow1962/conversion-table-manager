@@ -35,7 +35,7 @@ simplifies managing them.
 To install the package, `conversion-table-manager`, use npm:
 
 ```bash
-npm install @mmpress/conversion-table-manager
+npm install @mm-press/conversion-table-manager
 ```
 
 ## Usage

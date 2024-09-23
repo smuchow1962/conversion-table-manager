@@ -1,4 +1,3 @@
-// conversion-table-find.test.js
 const { ConversionTableManager } = require('../conversion-table-manager');
 
 describe('ConversionTableManager - find() method', () => {
@@ -18,7 +17,10 @@ describe('ConversionTableManager - find() method', () => {
         const [error, unitData] = conversionManager.find('cm', 'typography');
         expect(error).toBeNull();
         expect(unitData).toEqual({
+            alias: null,
+            base: false,
             bias: 0,
+            minor: null,
             scale: 28.3465,
             term: ['Centimeter', 'Centimeters'],  // Term returned as an array when found
         });
@@ -28,7 +30,10 @@ describe('ConversionTableManager - find() method', () => {
         const [error, unitData] = conversionManager.find('i', 'typography');
         expect(error).toBeNull();
         expect(unitData).toEqual({
+            alias: 'in',
+            base: false,
             bias: 0,
+            minor: null,
             scale: 72.0,
             term: ['Inch', 'Inches'],  // Term returned as an array when found
         });

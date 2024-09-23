@@ -3,9 +3,9 @@ const { ConversionTableManager, ConversionTableOperations } = require('../conver
 
 // Test data: Valid cases
 const validCases = [
+    { input: '2i', table: 'typography', expected: { main: { unit: 'in', value: 2, scale: 72.0, bias: 0 }, sub: null, base: 'pt' } },
     { input: '11', table: 'typography', expected: { main: { unit: 'pt', value: 11, scale: 1, bias: 0 }, sub: null, base: 'pt' } },
     { input: '1.5', table: 'typography', expected: { main: { unit: 'pt', value: 1.5, scale: 1, bias: 0 }, sub: null, base: 'pt' } },
-    { input: '2i', table: 'typography', expected: { main: { unit: 'in', value: 2, scale: 72.0, bias: 0 }, sub: null, base: 'pt' } },
     { input: '10cm', table: 'typography', expected: { main: { unit: 'cm', value: 10, scale: 28.3465, bias: 0 }, sub: null, base: 'pt' } },
     { input: '1c4', table: 'typography', expected: { main: { unit: 'c', value: 1, scale: 12.789, bias: 0 }, sub: { unit: 'd', value: 4, scale: 1.06575, bias: 0 }, base: 'pt' } },
     { input: '1p6', table: 'typography', expected: { main: { unit: 'p', value: 1, scale: 12.0, bias: 0 }, sub: { unit: 'pt', value: 6, scale: 1, bias: 0 }, base: 'pt' } },

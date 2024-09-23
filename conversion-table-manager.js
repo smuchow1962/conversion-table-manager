@@ -42,7 +42,7 @@
             const [normalizeError, normalizedData] = ConversionTable.normalizeTable(rawTable, tableName);
             if (normalizeError) return [normalizeError, null];
 
-            const [regexError, regexString] = ConversionTable.buildRegex(normalizedData.table, tableName);
+            const [regexError, regexString] = ConversionTable.buildRegexString(normalizedData.table, tableName);
             if (regexError) return [regexError, null];
 
             return [null, new ConversionTable(normalizedData.table, normalizedData.base, regexString, tableName, normalizedData.precision)];
@@ -75,7 +75,9 @@
                     }
 
                     if (value.alias) {
+                        const a = value.alias;
                         value = table[value.alias];
+                        value.alias = a;
                     }
 
                     // Normalize the scale and round it to 15 decimal digits
@@ -106,7 +108,7 @@
          * @param {string} tableName - The name of the conversion table (optional).
          * @returns {[string|null, string|null]} A tuple with the error (or null) and the regex string (or null).
          */
-        static buildRegex(table, tableName = '') {
+        static buildRegexString(table, tableName = '') {
             try {
                 const units = Object.keys(table);
                 if (units.length === 0) return [`table:${tableName} No units found to build regex.`, null];

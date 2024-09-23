@@ -98,9 +98,9 @@ describe('ConversionTable', () => {
         expect(typographyConversionTable.precision).toBe(12); // Highest precision in scale (12.789065750000)
     });
 
-    // Test the buildRegex method for the typography table
+    // Test the buildRegexString method for the typography table
     test('should correctly build regex for unit recognition', () => {
-        const [error, regexString] = ConversionTable.buildRegex(typographyConversionTable.table, 'typography');
+        const [error, regexString] = ConversionTable.buildRegexString(typographyConversionTable.table, 'typography');
         expect(error).toBeNull();
         expect(regexString).toBeTruthy();
 

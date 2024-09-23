@@ -12,8 +12,39 @@
 }(typeof self !== 'undefined' ? self : this, function () {
 
     /**
-     * Represents a single conversion table.
+     * Class representing a single conversion unit.
      */
+    class ConversionUnit {
+        /**
+         * Creates an instance of ConversionUnit.
+         *
+         * @param {boolean} base - Indicates if the unit is the base unit.
+         * @param {number} scale - The scale factor for the unit.
+         * @param {number} bias - The bias (offset) for the unit.
+         * @param {string|null} alias - The alias for the unit, if any.
+         * @param {string|null} minor - The minor unit associated with the unit, if any.
+         * @param {[string, string]|null} term - The singular and plural forms of the unit's name.
+         */
+        constructor(base, scale, bias, alias, minor, term) {
+            this.base = base;
+            this.scale = scale;
+            this.bias = bias;
+            this.alias = alias;
+            this.minor = minor;
+            this.term = term;
+        }
+
+        /**
+         * Returns a string representation of the ConversionUnit instance.
+         *
+         * @returns {string} A string describing the conversion unit.
+         */
+        toString() {
+            return `${this.term ? this.term[0] : 'Unknown unit'} (scale: ${this.scale}, bias: ${this.bias})`;
+        }
+    }
+
+    // ConversionTable class: Represents a single conversion table
     class ConversionTable {
         /**
          * Creates an instance of ConversionTable.
@@ -105,10 +136,10 @@
 
         /**
          * Find a unit by its key in the table.
-         * Resolves aliases and returns the actual unit data.
+         * Resolves aliases and returns the actual unit data as a ConversionUnit.
          *
          * @param {string} unitKey - The unit or alias key to search for.
-         * @returns {[string|null, Object|null]} A tuple with the error message (or null), and the unit data (or null).
+         * @returns {[string|null, ConversionUnit|null]} A tuple with the error message (or null), and the ConversionUnit object (or null).
          */
         findUnit(unitKey) {
             let unitData = this.table[unitKey];
@@ -123,10 +154,18 @@
                 if (!resolvedData) {
                     return [`Alias '${unitKey}' does not map to a valid unit in the table.`, null];
                 }
-                unitData = resolvedData;  // Return the resolved data
+                unitData = resolvedData;
             }
 
-            return [null, unitData];
+            // Return a ConversionUnit object with all required fields
+            return [null, new ConversionUnit({
+                alias: unitData.alias || null,
+                base: unitData.base || false,
+                bias: unitData.bias || 0,
+                minor: unitData.minor || null,
+                scale: unitData.scale || 1,
+                term: unitData.term || null
+            })];
         }
 
         /**
@@ -240,14 +279,12 @@
         }
     }
 
-    /**
-     * Responsible for handling conversion operations.
-     */
+    // ConversionTableOperations class: Responsible for handling conversion operations
     class ConversionTableOperations {
         /**
-         * Parses an input string using a conversion table.
+         * Parses an input string into a structured object with unit and value information.
          *
-         * @param {string} input - The input string to parse.
+         * @param {string} input - The input string to parse (e.g., "2in").
          * @param {ConversionTable} conversionTable - The conversion table to use for parsing.
          * @returns {[string|null, Object|null]} A tuple with the error message (or null), and the parsed result (or null).
          */
@@ -266,12 +303,12 @@
                     if (tableEntry.alias) {
                         const key = tableEntry.alias;
                         tableEntry = conversionTable.table[tableEntry.alias];
-                        resolvedUnit = key;  // Return the real object as per your requirement
+                        resolvedUnit = key;
                     }
 
                     const parsed = {
                         main: {
-                            unit: resolvedUnit,  // Assign the correct unit (resolved if alias)
+                            unit: resolvedUnit,
                             value: parseFloat(majorValue),
                             scale: tableEntry.scale ?? 1,
                             bias: tableEntry.bias ?? 0
@@ -295,12 +332,12 @@
         }
 
         /**
-         * Converts an input value to a desired unit using a conversion table.
+         * Converts a value from one unit to another within a conversion table.
          *
-         * @param {string} inputValue - The input value to convert.
-         * @param {string} desiredUnit - The desired target unit.
+         * @param {string} inputValue - The input string representing a value and unit.
+         * @param {string} desiredUnit - The target unit to convert to.
          * @param {ConversionTable} conversionTable - The conversion table to use for conversion.
-         * @returns {[string|null, Object|null]} A tuple with the error message (or null), and the converted result (or null).
+         * @returns {[string|null, Object|null]} A tuple with the error message (or null), and the converted value (or null).
          */
         static convert(inputValue, desiredUnit, conversionTable) {
             try {
@@ -327,9 +364,7 @@
         }
     }
 
-    /**
-     * Manages the registration and retrieval of ConversionTable instances.
-     */
+    // ConversionTableManager class: Manages the registration and retrieval of ConversionTable instances
     class ConversionTableManager {
         constructor() {
             this.tables = {};
@@ -338,10 +373,10 @@
         /**
          * Registers a new conversion table.
          *
-         * @param {string} name - Name of the conversion table.
+         * @param {string} name - The name of the conversion table.
          * @param {Object} rawTable - The raw conversion table data.
          * @param {boolean} [force=false] - Whether to overwrite an existing table.
-         * @returns {[string|null, boolean|null]} Tuple with error message or null, and true if successful.
+         * @returns {[string|null, string|null]} Tuple with error message (or null), and success message (or null).
          */
         register(name, rawTable, force = false) {
             if (this.tables[name] && !force) {
@@ -363,8 +398,8 @@
          * Unregisters a conversion table by name.
          *
          * @param {string} name - The name of the table to unregister.
-         * @param {boolean} [verbose=false] - Whether to raise an error if the table is not found.
-         * @returns {[string|null, boolean|null]} Tuple with error message or null, and true if unregistered.
+         * @param {boolean} [verbose=false] - If false, a missing table will not raise an error.
+         * @returns {[string|null, string|null]} Tuple with error message (or null), and success message (or null).
          */
         unregister(name, verbose = false) {
             if (!this.tables[name]) {
@@ -381,7 +416,7 @@
          * Retrieves a registered conversion table by name.
          *
          * @param {string} name - The name of the conversion table.
-         * @returns {[string|null, ConversionTable|null]} Tuple with error message or null, and the conversion table if found.
+         * @returns {[string|null, ConversionTable|null]} Tuple with error message (or null), and the conversion table if found.
          */
         get(name) {
             const table = this.tables[name];
@@ -393,11 +428,11 @@
 
         /**
          * Find a unit by its key in the specified table.
-         * Resolves aliases and returns the actual unit data.
+         * Resolves aliases and returns the actual unit data in a ConversionUnit instance.
          *
          * @param {string} unitKey - The unit or alias key to search for.
          * @param {string} tableName - The name of the table to search in.
-         * @returns {[string|null, Object|null]} A tuple with the error message (or null), and the unit data (or null).
+         * @returns {[string|null, ConversionUnit|null]} A tuple with the error message (or null), and the ConversionUnit instance (or null).
          */
         find(unitKey, tableName) {
             const [error, table] = this.get(tableName);
@@ -412,6 +447,7 @@
     }
 
     return {
+        ConversionUnit,
         ConversionTable,
         ConversionTableOperations,
         ConversionTableManager

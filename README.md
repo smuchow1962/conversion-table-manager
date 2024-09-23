@@ -1,21 +1,17 @@
 # Conversion Table Manager
 
-
-[![NPM version][npm-image]][npm-url]
-[![NPM downloads][downloads-image]][downloads-url]
-[![Build status][travis-image]][travis-url]
-[![Test coverage][coveralls-image]][coveralls-url]
-![File Size][filesize-url]
+[![NPM version][npm-image]][npm-url]  
+[![NPM downloads][downloads-image]][downloads-url]  
+[![Build status][travis-image]][travis-url]  
+[![Test coverage][coveralls-image]][coveralls-url]  
+![File Size][filesize-url]  
 [![CDNJS][cdnjs-image]][cdnjs-url]
 
-
 ## ConversionTable
-`ConversionTable` collects tables of different unit types, using a pre-defined format and
-simplifies managing them.
+`ConversionTable` collects tables of different unit types, using a pre-defined format and simplifies managing them.
 
-- This class has a conversion function to change from one unit to another. 
-- It is designed as a container of tables
-  that can be injected into other functions to perform calculations.
+- This class has a conversion function to change from one unit to another.
+- It is designed as a container of tables that can be injected into other functions to perform calculations.
 
 ## Features
 
@@ -23,12 +19,9 @@ simplifies managing them.
 - Supports **alias mapping** for alternate unit names.
 - Automatically builds **regex** patterns from unit names for parsing.
 - Provides a **get method** to get conversion tables.
-- Supports the singleton pattern to keep global environment pollution at a minimum (as well
-  as static variables).
-  - Registering, normalizing, and retrieval of conversion tables are all done from the
-    instance() method to enforce this.
-- The **parse method** extracts structured data from input strings, supporting major and minor
-  units and returning a result that facilitates conversion to base units.
+- Supports the singleton pattern to keep global environment pollution at a minimum (as well as static variables).
+  - Registering, normalizing, and retrieval of conversion tables are all done from the `instance()` method to enforce this.
+- The **parse method** extracts structured data from input strings, supporting major and minor units and returning a result that facilitates conversion to base units.
 
 ## Installation
 
@@ -42,8 +35,7 @@ npm install @mm-press/conversion-table-manager
 
 ### Example
 
-The following example illustrates how to use the `ConversionTable` class to register, get, and use
-conversion tables:
+The following example illustrates how to use the `ConversionTable` class to register, get, and use conversion tables:
 
 ```javascript
 const ConversionTable = require('conversion-table-manager');
@@ -85,8 +77,7 @@ if (unregisterError) {
 
 ### Using the `regex()` Method
 
-You can retrieve the regex used to match units in a registered table by calling the `regex()`
-method. This returns a new `RegExp` object each time, built from the stored regex string.
+You can retrieve the regex used to match units in a registered table by calling the `regex()` method. This returns a new `RegExp` object each time, built from the stored regex string.
 
 Example usage:
 
@@ -105,9 +96,7 @@ console.log(result);  // Matches against the 'C' (Celsius) unit
 
 ### Using the `parse()` Method
 
-The `parse()` method allows you to analyze input strings and extract structured unit information.
-The returned result contains major and minor units, their values, and their scale and bias
-relative to the base unit. Additionally, the base unit is identified for conversion purposes.
+The `parse()` method allows you to analyze input strings and extract structured unit information. The returned result contains major and minor units, their values, and their scale and bias relative to the base unit. Additionally, the base unit is identified for conversion purposes.
 
 Example:
 
@@ -127,8 +116,7 @@ if (error) {
 }
 ```
 
-If the input contains both a major and a minor unit, the `sub` field will also be filled with
-the minor unit’s information:
+If the input contains both a major and a minor unit, the `sub` field will also be filled with the minor unit’s information:
 
 ```javascript
 const [error, result] = conversionTable.parse('1p6', 'typography');
@@ -154,41 +142,33 @@ The `parse()` method returns an object with the following structure:
 {
     main: { 
         unit: string,       // The major unit type (e.g., 'cm', 'p', etc.)
-        value: Number,       // The numeric value associated with the major unit
-        scale: Number,       // The scale factor of the major unit relative to the base unit
-        bias: Number         // The bias value for the major unit (added after scaling)
+        value: number,       // The numeric value associated with the major unit
+        scale: number,       // The scale factor of the major unit relative to the base unit
+        bias: number         // The bias value for the major unit (added after scaling)
     },
     sub: { 
         unit: string,        // The minor unit type (optional, e.g., 'pt' for points)
-        value: Number,       // The numeric value for the minor unit (optional)
-        scale: Number,       // The scale factor of the minor unit (optional)
-        bias: Number         // The bias value for the minor unit (optional)
+        value: number,       // The numeric value for the minor unit (optional)
+        scale: number,       // The scale factor of the minor unit (optional)
+        bias: number         // The bias value for the minor unit (optional)
     },
     base: string             // The key for the base unit used for conversion
 }
 ```
 
-If the input does not contain a minor unit, the `sub` field will be `null`. The `base` field will
-contain the key of the base unit defined in the conversion table, which is used for conversion
-purposes.
+If the input does not contain a minor unit, the `sub` field will be `null`. The `base` field will contain the key of the base unit defined in the conversion table, which is used for conversion purposes.
 
 ## Conversion Table Properties
 
 ### Structure
 
-A Units Conversion Table is an object in which each key represents a unit, and the value associated
-with each key is an object that defines the following properties:
+A Units Conversion Table is an object in which each key represents a unit, and the value associated with each key is an object that defines the following properties:
 
-- **base**: `boolean` (required) — Marks the unit as the base unit with a scale of 1 and a bias of 0. Only one
-  of the units should have `base: true`.
-- **scale**: `number` (optional, default: 1.0) — Conversion factor relative to the base unit.
-  This is how the unit relates to the base unit.
-- **bias**: `number` (optional, default: 0) — A value added after scaling to the number. Useful
-  in temperature conversions.
-- **minor**: `string` (optional) — The unit may have a minor unit. For example, Picas have
-  Points as their minor unit. Ciceros have Didots.
-- **alias**: `string` (optional) — An alias for another unit. The alias behaves the same as
-  the unit. For example, `i` is an alias for `in`, which represents 'inches'.
+- **base**: `boolean` (required) — Marks the unit as the base unit with a scale of 1 and a bias of 0. Only one of the units should have `base: true`.
+- **scale**: `number` (optional, default: 1.0) — Conversion factor relative to the base unit. This is how the unit relates to the base unit.
+- **bias**: `number` (optional, default: 0) — A value added after scaling to the number. Useful in temperature conversions.
+- **minor**: `string` (optional) — The unit may have a minor unit. For example, Picas have Points as their minor unit. Ciceros have Didots.
+- **alias**: `string` (optional) — An alias for another unit. The alias behaves the same as the unit. For example, `i` is an alias for `in`, which represents 'inches'.
 - **term**: `string` (optional) — Descriptive name or pattern of the unit.
 
 ### Example: Temperature Conversion Table
@@ -207,8 +187,7 @@ const tempTable = {
 
 ### Example: Typography Conversion Table
 
-A bit more interesting example shows up in typography, where units like **Picas** (`p`) and
-**Ciceros** (`c`) come with minor units - the Points and Didots respectively:
+A bit more interesting example shows up in typography, where units like **Picas** (`p`) and **Ciceros** (`c`) come with minor units - the Points and Didots respectively:
 
 ```javascript
 const type = {
@@ -233,12 +212,49 @@ const distance = {
 };
 ```
 
+### ConversionUnit
+
+A `ConversionUnit` object encapsulates the properties of a unit, including its
+alias, base status, bias, scale, minor unit, and term (singular and plural).
+
+#### Properties of ConversionUnit
+
+| Property  | Type      | Description                                                                                            |
+|-----------|-----------|--------------------------------------------------------------------------------------------------------|
+| `alias`   | `string`  | The alias of the unit, if applicable. For example, `'in'` is an alias for inches.                      |
+| `base`    | `boolean` | Indicates if the unit is the base unit for the table (e.g., `true` for points in typography).          |
+| `bias`    | `number`  | The bias value used in conversions (default is `0`).                                                   |
+| `scale`   | `number`  | The scale value used in conversions (e.g., `72.0` points in one inch in typography is the scale).      |
+| `minor`   | `string`  | The minor unit associated with the unit, if applicable. For example, picas have points as minor units. |
+| `term`    | `array`   | An array containing the singular and plural terms for the unit.                                        |
+
+### Example Usage
+
+```js
+const { ConversionTableManager } = require('conversion-table-manager');
+
+// Register a conversion table
+const conversionManager = new ConversionTableManager();
+conversionManager.register('typography', {
+    'i': { alias: 'in' },
+    'in': { scale: 72.0, term: 'Inch(es)' },
+    'cm': { scale: 28.3465, term: 'Centimeter(s)' },
+    'pt': { base: true, term: 'Point(s)' }
+});
+
+// Find a unit
+const [error, unit] = conversionManager.find('in', 'typography');
+if (!error) {
+    console.log(unit); // ConversionUnit { alias: 'in', base: false, bias: 0, scale: 72, term: ['Inch', 'Inches'] }
+}
+```
+
+
 ## API Documentation
 
 ### `ConversionTable.instance()`
 
-Returns the singleton instance of `ConversionTable`. This enforces that, throughout the application,
-there is only one instance of this class.
+Returns the singleton instance of `ConversionTable`. This enforces that, throughout the application, there is only one instance of this class.
 
 ```javascript
 const conversionTable = ConversionTable.instance();
@@ -246,8 +262,7 @@ const conversionTable = ConversionTable.instance();
 
 ### `register(name, table, [force=false])`
 
-Registers a new conversion table under the given `name`. It finds the base of the table and creates
-a regex pattern able to identify units.
+Registers a new conversion table under the given `name`. It finds the base of the table and creates a regex pattern able to identify units.
 
 - **name**: A string of the name of the conversion table. For example: `'temp'` for temperature units.
 - **table**: The conversion table. For details, see [Conversion Table Properties](#conversion-table-properties).
@@ -308,9 +323,7 @@ const [error, regex] = conversionTable.regex('distance');
 
 ### `parse(input, tableName)`
 
-Parses the provided `input` string and extracts unit and value information based on the
-specified `tableName`. Returns a structured object that includes the major unit, minor unit (if any),
-and base unit.
+Parses the provided `input` string and extracts unit and value information based on the specified `tableName`. Returns a structured object that includes the major unit, minor unit (if any), and base unit.
 
 - **input**: The input string to parse (e.g., `'10cm'` or `'1p6'`).
 - **tableName**: The name of the registered table to use for parsing.
@@ -345,15 +358,11 @@ The `parse()` method returns an object with the following structure:
 }
 ```
 
-If the input does not contain a minor unit, the `sub` field will be `null`. The `base` field will
-contain the key of the base unit defined in the conversion table, which is used for conversion
-purposes.
+If the input does not contain a minor unit, the `sub` field will be `null`. The `base` field will contain the key of the base unit defined in the conversion table, which is used for conversion purposes.
 
 ### `find(unitName, tableName)`
 
-Finds the unit or its parent unit (if the unit is an alias) in the table. Returns a tuple with the full content
-of the `unitName` or the base unit's data if the `unitName` is an alias, and ensures that the returned 
-object has default values for `scale` (default: 1) and `bias` (default: 0).
+Finds the unit or its parent unit (if the unit is an alias) in the table. Returns a tuple with the full content of the `unitName` or the base unit's data if the `unitName` is an alias, and ensures that the returned object has default values for `scale` (default: 1) and `bias` (default: 0).
 
 #### Parameters:
 - **unitName**: The name of the unit to find.
@@ -362,8 +371,7 @@ object has default values for `scale` (default: 1) and `bias` (default: 0).
 #### Returns:
 - A tuple `[error, unitData]`:
   - `error`: A string with the error message, if applicable.
-  - `unitData`: The complete data of the found unit or the base unit's data if the `unitName` is an 
-    alias, with defaults for `scale` and `bias`.
+  - `unitData`: The complete data of the found unit or the base unit's data if the `unitName` is an alias, with defaults for `scale` and `bias`.
 
 #### Example:
 
@@ -385,8 +393,7 @@ console.log(noScaleUnit); // { term: 'No Scale Unit', scale: 1, bias: 0 }
 
 ### `convert(inputValue, desiredUnit, tableName)`
 
-The `convert` function takes an input value and unit, converts it to the desired unit within a specified 
-table, and returns a structured result with the converted value and unit.
+The `convert` function takes an input value and unit, converts it to the desired unit within a specified table, and returns a structured result with the converted value and unit.
 
 #### Parameters:
 - **inputValue**: The input string that includes both the value and the unit to be converted (e.g., `'150cm'`).
@@ -433,7 +440,7 @@ if (!error) {
 // Reuse the same variables for another conversion
 [error, result] = conversionTable.convert('1m', 'mm', 'length');
 if (!error) {
-    console.log(`1 m is equal to ${result.value} ${result.unit}`);
+    console.log(`1 m is equal to 1000 mm`);
 }
 
 // Another conversion from millimeters to centimeters
@@ -453,23 +460,16 @@ if (!error) {
 
 ### Full Conversion Process:
 
-1. **Input Parsing**: The `convert` function first parses the input string 
-   using the `parse()` method to extract the value and unit.
+1. **Input Parsing**: The `convert` function first parses the input string using the `parse()` method to extract the value and unit.
 2. **Table Lookup**: It looks up both the input unit and the desired unit in the specified conversion table.
 3. **Conversion Formula**: It applies the conversion formula using the scales and biases of both units.
 4. **Return**: The function returns the result with the converted value and the desired unit.
 
-
 # Input Table Data Model
 
-The data model for an input table in the `ConversionTable` class is a structured
-object where each key represents a unit (like `'m'` for meters or `'ft'` for feet),
-and each value defines various properties of that unit, including its relationship
-to the base unit, potential aliases, and minor units (sub-units).
+The data model for an input table in the `ConversionTable` class is a structured object where each key represents a unit (like `'m'` for meters or `'ft'` for feet), and each value defines various properties of that unit, including its relationship to the base unit, potential aliases, and minor units (sub-units).
 
-The model can be constructed as a **sparse** model, meaning that missing properties
-have defaults. Additionally, precision is considered based on the number of decimal
-digits present in the unit's scaling factor.
+The model can be constructed as a **sparse** model, meaning that missing properties have defaults. Additionally, precision is considered based on the number of decimal digits present in the unit's scaling factor.
 
 ## Table of Properties
 
@@ -487,13 +487,7 @@ digits present in the unit's scaling factor.
 
 ### Precision
 
-The `precision` for a table is calculated by finding the maximum number of digits after
-the decimal point in all `scale` values. Precision has a minimum value of **6** and a
-maximum value of **15**. This ensures precision is always within a reasonable range,
-even for irrational numbers like Pi or values with repeating decimals. If a conversion
-involves irrational numbers (like Pi), the precision is rounded to **15 digits**.
-Precision is passed to the `ConversionTable` constructor and is used internally to
-ensure accurate conversions.
+The `precision` for a table is calculated by finding the maximum number of digits after the decimal point in all `scale` values. Precision has a minimum value of **6** and a maximum value of **15**. This ensures precision is always within a reasonable range, even for irrational numbers like Pi or values with repeating decimals. If a conversion involves irrational numbers (like Pi), the precision is rounded to **15 digits**. Precision is passed to the `ConversionTable` constructor and is used internally to ensure accurate conversions.
 
 ## Example Input Tables
 
@@ -538,8 +532,7 @@ const distanceTable = {
 
 ## ConversionTable Properties
 
-The `ConversionTable` constructor populates the following properties when an
-instance is created:
+The `ConversionTable` constructor populates the following properties when an instance is created:
 
 | Property      | Type     | Description                                                                                      |
 |---------------|----------|--------------------------------------------------------------------------------------------------|
@@ -565,61 +558,42 @@ console.log(distanceConversionTable.precision);  // Output: 6 (minimum precision
 
 ### Precision Property:
 
-- Precision is calculated based on the number of digits after the decimal point in
-  the `scale` values of the units.
-- The minimum precision is **6**, even if the largest number of decimal places in
-  the table is smaller than that.
-- Precision is useful for ensuring that conversion calculations maintain the
-  necessary level of accuracy.
-- 15 digits is about the safest size when describing repeating decimal digits or
-  irrational numbers.
+- Precision is calculated based on the number of digits after the decimal point in the `scale` values of the units.
+- The minimum precision is **6**, even if the largest number of decimal places in the table is smaller than that.
+- Precision is useful for ensuring that conversion calculations maintain the necessary level of accuracy.
+- 15 digits is about the safest size when describing repeating decimal digits or irrational numbers.
 
 ## Explanation of Properties
 
 ### `base`
-Indicates the unit that serves as the reference point for all other units in the
-table. In the `distanceTable`, `m` (Meters) is the base unit. Only one unit should
-have `base: true`.
+Indicates the unit that serves as the reference point for all other units in the table. In the `distanceTable`, `m` (Meters) is the base unit. Only one unit should have `base: true`.
 
 ### `scale`
-Defines how many of this unit make up 1 of the base unit. For example, `1000`
-kilometers equals 1 meter (`km` has a `scale` of 1000). The base unit (`m` in this
-case) has no `scale` defined, as it's implied to be `1`.
+Defines how many of this unit make up 1 of the base unit. For example, `1000` kilometers equals 1 meter (`km` has a `scale` of 1000). The base unit (`m` in this case) has no `scale` defined, as it's implied to be `1`.
 
 ### `bias`
-This is used for conversions where an offset needs to be applied in addition to
-scaling. An example is temperature conversion, but it’s not commonly used in distance
-tables.
+This is used for conversions where an offset needs to be applied in addition to scaling. An example is temperature conversion, but it’s not commonly used in distance tables.
 
 ### `term`
-The human-readable name of the unit, which can handle singular/plural/irregular
-forms. Examples:
+The human-readable name of the unit, which can handle singular/plural/irregular forms. Examples:
 - **`Meter(s)`** → `['Meter', 'Meters']`.
 - **`Foot/Feet`** → `['Foot', 'Feet']`.
 - **`Fahrenheit`** → `['Fahrenheit', 'Fahrenheit']`
 - **`Sheep`** → `['Sheep', 'Sheep']`
 
 ### `alias`
-Defines an alternative name for the unit, pointing to another unit's key. For
-example, `i` could alias to `in` (inches). This allows the same unit to be referenced
-by multiple names.
+Defines an alternative name for the unit, pointing to another unit's key. For example, `i` could alias to `in` (inches). This allows the same unit to be referenced by multiple names.
 
 ### `minor`
-Specifies a sub-unit related to this unit, commonly seen in measurements like Picas,
-which use Points as the minor unit. Example: In typography, `p` (Picas) has a `minor`
-unit `pt` (Points).
+Specifies a sub-unit related to this unit, commonly seen in measurements like Picas, which use Points as the minor unit. Example: In typography, `p` (Picas) has a `minor` unit `pt` (Points).
 
 ## Summary
 
-- **Base Unit**: Only one unit can be the base, and this unit will act as the
-  reference for all other units in the table.
-- **Scale**: The scale is the ratio of the unit to the base unit. A unit without a
-  scale is assumed to be the base unit.
-- **Term**: Handles both singular and plural forms, either by auto-detecting patterns
-  or through explicit input.
-- **Alias**: Allows multiple names to refer to the same unit, helping in cases where
-  alternate terminologies are used.
-- **Precision**: The largest number of decimal places in the `scale` values of the
-  table, with a minimum precision of 6.
-- **Minor Unit**: A sub-unit that is a fraction of the main unit, useful for
-  hierarchical measurement systems (e.g., feet and inches, picas and points).
+- **Base Unit**: Only one unit can be the base, and this unit will act as the reference for all other units in the table.
+- **Scale**: The scale is the ratio of the unit to the base unit. A unit without a scale is assumed to be the base unit.
+- **Term**: Handles both singular and plural forms, either by auto-detecting patterns or through explicit input.
+- **Alias**: Allows multiple names to refer to the same unit, helping in cases where alternate terminologies are used.
+- **Precision**: The largest number of decimal places in the `scale` values of the table, with a minimum precision of 6.
+- **Minor Unit**: A sub-unit that is a fraction of the main unit, useful for hierarchical measurement systems (e.g., feet and inches, picas and points).
+
+```

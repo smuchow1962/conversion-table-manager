@@ -1,4 +1,5 @@
-const { ConversionTableManager } = require('../conversion-table-manager');
+// conversion-table-find.test.js
+const { ConversionTableManager, ConversionUnit } = require('../conversion-table-manager');
 
 describe('ConversionTableManager - find() method', () => {
     let conversionManager;
@@ -13,30 +14,32 @@ describe('ConversionTableManager - find() method', () => {
         });
     });
 
-    test('should find a normal unit', () => {
+    test('should find a normal unit and return an instance of ConversionUnit', () => {
         const [error, unitData] = conversionManager.find('cm', 'typography');
         expect(error).toBeNull();
-        expect(unitData).toEqual({
-            alias: null,
-            base: false,
-            bias: 0,
-            minor: null,
-            scale: 28.3465,
-            term: ['Centimeter', 'Centimeters'],  // Term returned as an array when found
-        });
+        expect(unitData).toBeInstanceOf(ConversionUnit);  // Verify the class instance
+        expect(unitData).toEqual(new ConversionUnit({
+            alias: null,  // No alias for cm
+            base: false,  // Not a base unit
+            bias: 0,  // No bias
+            minor: null,  // No minor unit
+            scale: 28.3465,  // Correct scale for cm
+            term: ['Centimeter', 'Centimeters']  // Correct singular/plural term
+        }));
     });
 
-    test('should find an alias and return the parent unit data', () => {
+    test('should find an alias and return the parent unit data as an instance of ConversionUnit', () => {
         const [error, unitData] = conversionManager.find('i', 'typography');
         expect(error).toBeNull();
-        expect(unitData).toEqual({
-            alias: 'in',
-            base: false,
-            bias: 0,
-            minor: null,
-            scale: 72.0,
-            term: ['Inch', 'Inches'],  // Term returned as an array when found
-        });
+        expect(unitData).toBeInstanceOf(ConversionUnit);
+        expect(unitData).toEqual(new ConversionUnit({
+            alias: 'in',  // Alias resolves to 'in'
+            base: false,  // Not a base unit
+            bias: 0,  // No bias for inches
+            minor: null,  // No minor unit
+            scale: 72.0,  // Correct scale for inches
+            term: ['Inch', 'Inches']  // Correct singular/plural term
+        }));
     });
 
     test('should return an error if the unit does not exist', () => {
